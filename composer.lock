@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "874eb3dc642b9d06f0313c6a216e6fd7",
-    "content-hash": "c2108590a5c988af6d7d6f15381fde3f",
+    "hash": "4e520bf2fb0d061961bcbc9e7364aede",
+    "content-hash": "dbb79b77c490bdc00a2a3055c13b6dc5",
     "packages": [],
     "packages-dev": [
         {
@@ -64,7 +64,7 @@
         },
         {
             "name": "gamegos/php-code-sniffer",
-            "version": "dev-master",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gamegos/php-code-sniffer.git",
@@ -1006,9 +1006,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "gamegos/php-code-sniffer": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

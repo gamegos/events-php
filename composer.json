@@ -1,7 +1,9 @@
 {
     "name": "gamegos/events",
-    "type": "library",
-    "description": "Events Library",
+    "description": "Library to implement event emitting capability",
+    "keywords": [
+        "events"
+    ],
     "license": "MIT",
     "require": {
         "php": ">=5.5.0"
