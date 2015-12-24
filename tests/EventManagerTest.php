@@ -218,10 +218,10 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testTriggerAttachedHandlers()
+    public function testTrigger()
     {
-        $eventName    = 'foo';
         $eventManager = new EventManager();
+        $eventName    = 'foo';
 
         for ($i = 0; $i < 3; $i++) {
             $listener = $this->getMock('stdClass', ['method']);
@@ -231,10 +231,28 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         $eventManager->trigger($eventName);
     }
 
-    public function testTriggerAttachedHandlersWithPriority()
+    public function testTriggerEvent()
     {
-        $eventName  = 'foo';
-        $priorities = [
+        $eventManager = new EventManager();
+        $eventName    = 'foo';
+        /* @var $event Event */
+        $event = $this->getMock(Event::class, null, [$eventName]);
+
+        for ($i = 0; $i < 3; $i++) {
+            $listener = $this->getMock('stdClass', ['method']);
+            $listener->expects($this->once())->method('method')->with($this->identicalTo($event));
+            $eventManager->attach($eventName, [$listener, 'method']);
+        }
+        $eventManager->triggerEvent($event);
+    }
+
+    /**
+     * Data provider to test handlers with priority.
+     * @return array
+     */
+    public function triggerWithPriorityProvider()
+    {
+        $methods = [
             'methodA' => 2,
             'methodB' => 3,
             'methodC' => 1,
@@ -243,19 +261,45 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
             'methodF' => 3,
         ];
         // Sort priorities in reverse order, do not modify relative positions with same priority.
-        uasort($priorities, function ($a, $b) {
+        uasort($methods, function ($a, $b) {
             return $a <= $b ? 1 : -1;
         });
 
-        $listener     = $this->getMock('stdClass', array_keys($priorities));
         $eventManager = new EventManager();
+        $listener     = $this->getMock('stdClass', array_keys($methods));
+        $eventName    = 'foo';
 
+        return [
+            [$eventManager, $listener, $eventName, $methods]
+        ];
+    }
+
+    /**
+     * @dataProvider triggerWithPriorityProvider
+     */
+    public function testTriggerWithPriority(EventManager $eventManager, $listener, $eventName, $methods)
+    {
         $index = 0;
-        foreach ($priorities as $method => $priority) {
+        foreach ($methods as $method => $priority) {
             $listener->expects($this->at($index++))->method($method)->with($this->isInstanceOf(EventInterface::class));
             $eventManager->attach($eventName, [$listener, $method], $priority);
         }
         $eventManager->trigger($eventName);
+    }
+
+    /**
+     * @dataProvider triggerWithPriorityProvider
+     */
+    public function testTriggerEventWithPriority(EventManager $eventManager, $listener, $eventName, $methods)
+    {
+        /* @var $event Event */
+        $event = $this->getMock(Event::class, null, [$eventName]);
+        $index = 0;
+        foreach ($methods as $method => $priority) {
+            $listener->expects($this->at($index++))->method($method)->with($this->identicalTo($event));
+            $eventManager->attach($eventName, [$listener, $method], $priority);
+        }
+        $eventManager->triggerEvent($event);
     }
 
     public function testStopPropagation()

@@ -12,13 +12,13 @@ class EventManager
 {
     /**
      * Events and their associated handlers.
-     * @var CallbackQueue[]
+     * @var \Gamegos\Events\CallbackQueue[]
      */
     protected $events = [];
 
     /**
      * Default event object.
-     * @var Event
+     * @var \Gamegos\Events\Event
      */
     protected $defaultEvent;
 
@@ -78,7 +78,7 @@ class EventManager
     }
 
     /**
-     * Create an event and trigger the handlers of it.
+     * Create an event from the default event and trigger it's handlers.
      * @param string $eventName
      * @param mixed $target
      */
@@ -86,6 +86,15 @@ class EventManager
     {
         $event = $this->createEvent($eventName);
         $event->setTarget($target);
+        $this->triggerHandlers($event);
+    }
+
+    /**
+     * Trigger handlers of an event.
+     * @param \Gamegos\Events\EventInterface $event
+     */
+    public function triggerEvent(EventInterface $event)
+    {
         $this->triggerHandlers($event);
     }
 
