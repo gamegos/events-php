@@ -1,5 +1,9 @@
 # Events Library for PHP
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/gamegos/events-php/master/LICENSE)
+[![Build Status](https://travis-ci.org/gamegos/events-php.svg?branch=master)](https://travis-ci.org/gamegos/events-php)
+[![codecov.io](https://codecov.io/github/gamegos/events-php/coverage.svg?branch=master)](https://codecov.io/github/gamegos/events-php?branch=master)
+
 Simple library to implement event emitting capability for PHP applications.
 
 ## Installation
