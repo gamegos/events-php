@@ -7,7 +7,7 @@ before_install:
     - composer self-update
 
 install:
-    - composer install --no-interaction
+    - travis_retry composer install --no-interaction --dev --prefer-source
 
 script:
     - ./vendor/bin/phpunit --coverage-clover clover.xml
