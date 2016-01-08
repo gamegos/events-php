@@ -33,26 +33,3 @@ The above example will output:
 
     Handled "foo" event with subject "bar".
 
-## Development
-
-### Installation
-
-- Clone the repository.
-- Run `composer install`.
-
-### Unit Tests
-
-You can run the unit tests with the following command:
-
-```sh
-./vendor/bin/phpunit
-```
-
-#### Code Coverage
-If [xdebug](http://xdebug.org/) extension is installed and enabled for PHP CLI, [PHPUnit](https://phpunit.de/) will
-generate code coverage reports (in html format) will be generated under `./log` directory. If [xdebug](http://xdebug.org/)
-is installed but not enabled for CLI, you may load it at the runtime by running the following command:
-```sh
-php -d zend_extension=xdebug.so ./vendor/bin/phpunit
-```
-
