@@ -8,3 +8,9 @@ before_install:
 
 install:
     - composer install --no-interaction
+
+script:
+    - ./vendor/bin/phpunit --coverage-clover clover.xml
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)

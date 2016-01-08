@@ -15,11 +15,10 @@
             <directory suffix=".php">./src</directory>
         </whitelist>
     </filter>
-    
+
     <logging>
+        <log type="testdox-text" target="php://stdout"/>
         <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
-        <log type="coverage-html" target="./log/code-coverage" lowUpperBound="50" highLowerBound="90" />
-        <log type="testdox-html" target="./log/testdox.html"/>
     </logging>
 
 </phpunit>
