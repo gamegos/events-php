@@ -17,8 +17,8 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * Get event handlers from an event manager.
-     * @param  \Gamegos\Events\EventManager $eventManager a
-     * @param  string $eventName a
+     * @param  \Gamegos\Events\EventManager $eventManager
+     * @param  string $eventName
      * @return \Gamegos\Events\CallbackQueue
      */
     protected function getEventHandlers(EventManager $eventManager, $eventName)
