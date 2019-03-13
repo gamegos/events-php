@@ -224,7 +224,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         $eventName    = 'foo';
 
         for ($i = 0; $i < 3; $i++) {
-            $listener = $this->getMock('stdClass', ['method']);
+            $listener = $this->getMockBuilder('stdClass')->setMethods(['method'])->getMock();
             $listener->expects($this->once())->method('method')->with($this->isInstanceOf(EventInterface::class));
             $eventManager->attach($eventName, [$listener, 'method']);
         }
@@ -235,11 +235,10 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
     {
         $eventManager = new EventManager();
         $eventName    = 'foo';
-        /* @var $event Event */
-        $event = $this->getMock(Event::class, null, [$eventName]);
+        $event        = new Event($eventName);
 
         for ($i = 0; $i < 3; $i++) {
-            $listener = $this->getMock('stdClass', ['method']);
+            $listener = $this->getMockBuilder('stdClass')->setMethods(['method'])->getMock();
             $listener->expects($this->once())->method('method')->with($this->identicalTo($event));
             $eventManager->attach($eventName, [$listener, 'method']);
         }
@@ -266,7 +265,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         });
 
         $eventManager = new EventManager();
-        $listener     = $this->getMock('stdClass', array_keys($methods));
+        $listener     = $this->getMockBuilder('stdClass')->setMethods(array_keys($methods))->getMock();
         $eventName    = 'foo';
 
         return [
@@ -292,8 +291,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testTriggerEventWithPriority(EventManager $eventManager, $listener, $eventName, $methods)
     {
-        /* @var $event Event */
-        $event = $this->getMock(Event::class, null, [$eventName]);
+        $event = new Event($eventName);
         $index = 0;
         foreach ($methods as $method => $priority) {
             $listener->expects($this->at($index++))->method($method)->with($this->identicalTo($event));
@@ -311,7 +309,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
             $e->stopPropagation();
         };
 
-        $listener = $this->getMock('stdClass', ['beforeStop', 'stop', 'afterStop']);
+        $listener = $this->getMockBuilder('stdClass')->setMethods(['beforeStop', 'stop', 'afterStop'])->getMock();
         $listener->expects($this->at(0))->method('beforeStop')->with($instanceOf);
         $listener->expects($this->at(1))->method('stop')->with($instanceOf)->willReturnCallback($stopMethod);
         $listener->expects($this->never())->method('afterStop')->with($instanceOf);
