@@ -1,17 +1,13 @@
-language: php
+language: minimal
 
 matrix:
     include:
-        - php: 5.5
-        - php: 5.6
-        - php: 7.0
-        - php: 7.1
-        - php: 7.2
-        - php: 7.3
-          env: CODE_COVERAGE=1
-
-before_install:
-    - export PHP_VERSION=$TRAVIS_PHP_VERSION
+        - env: PHP_VERSION=5.5
+        - env: PHP_VERSION=5.6
+        - env: PHP_VERSION=7.0
+        - env: PHP_VERSION=7.1
+        - env: PHP_VERSION=7.2
+        - env: PHP_VERSION=7.3 CODE_COVERAGE=1
 
 install:
     - make test-install
@@ -20,4 +16,9 @@ script:
     - make test-run
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash) -f clover.xml
+
+cache:
+    directories:
+        - $TRAVIS_BUILD_DIR/.tmp/composer
+        - $TRAVIS_BUILD_DIR/vendor
