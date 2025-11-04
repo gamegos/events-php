@@ -5,6 +5,8 @@ services:
       dockerfile: "ci/test/php${PHP_VERSION}/Dockerfile"
       secrets:
         - github_token
+    volumes:
+      - .tmp:/app/.tmp
 secrets:
   github_token:
     environment: GITHUB_TOKEN
