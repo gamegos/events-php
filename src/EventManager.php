@@ -12,34 +12,29 @@ class EventManager
 {
     /**
      * Events and their associated handlers.
-     * @var \Gamegos\Events\CallbackQueue[]
+     * @var array<string, CallbackQueue>
      */
-    protected $events = [];
+    protected array $events = [];
 
     /**
      * Default event object.
-     * @var \Gamegos\Events\Event
      */
-    protected $defaultEvent;
+    protected ?EventInterface $defaultEvent = null;
 
     /**
      * Set the default event object.
-     * @param \Gamegos\Events\EventInterface $event
      */
-    public function setDefaultEvent(EventInterface $event)
+    public function setDefaultEvent(EventInterface $event): void
     {
         $this->defaultEvent = $event;
     }
 
     /**
      * Attach an handler to an event or multiple events.
-     * @param  string|array $eventName
-     *         Event name or array of event names
-     * @param  callable $handler
-     * @param  int $priority
-     * @throws \InvalidArgumentException
+     * @param string|array<string> $eventName Event name or array of event names
+     * @throws InvalidArgumentException
      */
-    public function attach($eventName, callable $handler, $priority = 0)
+    public function attach(mixed $eventName, callable $handler, int $priority = 0): void
     {
         if (is_array($eventName)) {
             foreach ($eventName as $name) {
@@ -47,6 +42,7 @@ class EventManager
             }
             return;
         }
+        
         if (!is_string($eventName)) {
             throw new InvalidArgumentException(sprintf(
                 '%s expects argument 1 to be string; %s given.',
@@ -64,10 +60,8 @@ class EventManager
 
     /**
      * Detach an handler from an event.
-     * @param string $eventName
-     * @param callable $handler
      */
-    public function detach($eventName, callable $handler)
+    public function detach(string $eventName, callable $handler): void
     {
         if (isset($this->events[$eventName])) {
             $this->events[$eventName]->remove($handler);
@@ -79,10 +73,8 @@ class EventManager
 
     /**
      * Create an event from the default event and trigger it's handlers.
-     * @param string $eventName
-     * @param mixed $target
      */
-    public function trigger($eventName, $target = null)
+    public function trigger(string $eventName, mixed $target = null): void
     {
         $event = $this->createEvent($eventName);
         $event->setTarget($target);
@@ -91,29 +83,24 @@ class EventManager
 
     /**
      * Trigger handlers of an event.
-     * @param \Gamegos\Events\EventInterface $event
      */
-    public function triggerEvent(EventInterface $event)
+    public function triggerEvent(EventInterface $event): void
     {
         $this->triggerHandlers($event);
     }
 
     /**
      * Get handlers of an event.
-     * @param  string $eventName
-     * @return \Gamegos\Events\CallbackQueue
      */
-    protected function getHandlers($eventName)
+    protected function getHandlers(string $eventName): CallbackQueue
     {
-        return isset($this->events[$eventName]) ? $this->events[$eventName] : new CallbackQueue();
+        return $this->events[$eventName] ?? new CallbackQueue();
     }
 
     /**
      * Create an event.
-     * @param  string $eventName
-     * @return \Gamegos\Events\EventInterface
      */
-    protected function createEvent($eventName)
+    protected function createEvent(string $eventName): EventInterface
     {
         if (null === $this->defaultEvent) {
             return new Event($eventName);
@@ -125,9 +112,8 @@ class EventManager
 
     /**
      * Trigger handlers of an event.
-     * @param \Gamegos\Events\EventInterface $event
      */
-    protected function triggerHandlers(EventInterface $event)
+    protected function triggerHandlers(EventInterface $event): void
     {
         foreach ($this->getHandlers($event->getName()) as $handler) {
             call_user_func($handler, $event);

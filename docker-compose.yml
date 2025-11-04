@@ -1,0 +1,10 @@
+services:
+  tester:
+    build:
+      context: .
+      dockerfile: "ci/test/php${PHP_VERSION}/Dockerfile"
+      secrets:
+        - github_token
+secrets:
+  github_token:
+    environment: GITHUB_TOKEN

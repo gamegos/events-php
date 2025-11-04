@@ -7,11 +7,14 @@ use ArrayIterator;
 /* Imports from Gamegos\Events */
 use Gamegos\Events\CallbackQueue;
 
+/* Imports from PHPUnit */
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Test class for Gamegos\Events\CallbackQueue
  * @author Safak Ozpinar <safak@gamegos.com>
  */
-class CallbackQueueTest extends \PHPUnit_Framework_TestCase
+class CallbackQueueTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * Number of dummy callbacks.
@@ -62,7 +65,7 @@ class CallbackQueueTest extends \PHPUnit_Framework_TestCase
                     $priority--;
                 }
                 $this->dummyCallbacks[] = [
-                    'callback' => create_function('', "return '{$priority}.{$order}';"),
+                    'callback' => function() use ($priority, $order) { return "{$priority}.{$order}"; },
                     'priority' => $priority,
                     'addIndex' => $order,
                 ];
@@ -130,7 +133,7 @@ class CallbackQueueTest extends \PHPUnit_Framework_TestCase
      * Data provider for userPriority flag.
      * @return array
      */
-    public function usePriorityProvider()
+    public static function usePriorityProvider(): array
     {
         return [
             [false],
@@ -138,9 +141,7 @@ class CallbackQueueTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @dataProvider usePriorityProvider
-     */
+    #[DataProvider('usePriorityProvider')]
     public function testAddContainsAndRemove($usePriority)
     {
         $queue     = new CallbackQueue();

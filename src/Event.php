@@ -9,28 +9,23 @@ class Event implements EventInterface
 {
     /**
      * Event name
-     * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * Event target
-     * @var mixed
      */
-    protected $target;
+    protected mixed $target;
 
     /**
      * Flag to stop further listeners to be triggered.
-     * @var bool
      */
-    protected $propagationStopped = false;
+    protected bool $propagationStopped = false;
 
     /**
      * Constructor
-     * @param string $name
-     * @param mixed $target
      */
-    public function __construct($name, $target = null)
+    public function __construct(string $name, mixed $target = null)
     {
         $this->setName($name);
         $this->setTarget($target);
@@ -39,7 +34,7 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -47,15 +42,15 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(string $name): void
     {
-        $this->name = (string) $name;
+        $this->name = $name;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTarget()
+    public function getTarget(): mixed
     {
         return $this->target;
     }
@@ -63,7 +58,7 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function setTarget($target)
+    public function setTarget(mixed $target): void
     {
         $this->target = $target;
     }
@@ -71,7 +66,7 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function stopPropagation()
+    public function stopPropagation(): void
     {
         $this->propagationStopped = true;
     }
@@ -79,7 +74,7 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function isPropagationStopped()
+    public function isPropagationStopped(): bool
     {
         return $this->propagationStopped;
     }

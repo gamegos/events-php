@@ -9,11 +9,15 @@ use Gamegos\Events\EventManager;
 use Gamegos\Events\Event;
 use Gamegos\Events\EventInterface;
 
+/* Imports from PHPUnit */
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+
 /**
  * Test class for Gamegos\Events\EventManager
  * @author Safak Ozpinar <safak@gamegos.com>
  */
-class EventManagerTest extends \PHPUnit_Framework_TestCase
+class EventManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * Get event handlers from an event manager.
@@ -42,7 +46,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
      * Invalid event names provider.
      * @return array
      */
-    public function invalidEventNamesProvider()
+    public static function invalidEventNamesProvider(): array
     {
         $values = [
             'null'       => [null],
@@ -64,12 +68,10 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         return $values;
     }
 
-    /**
-     * @dataProvider invalidEventNamesProvider
-     */
+    #[DataProvider('invalidEventNamesProvider')]
     public function testAttachThrowsExceptionForInvalidEventName($eventName)
     {
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $eventManager = new EventManager();
         $eventManager->attach($eventName, function ($e) {
@@ -87,10 +89,13 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
     public function testSetDefaultEvent()
     {
         $eventManager = new EventManager();
-        $defaultEvent = $this->prophesize(EventInterface::class)->reveal();
+        $defaultEvent = $this->createMock(EventInterface::class);
         $eventManager->setDefaultEvent($defaultEvent);
 
-        $this->assertAttributeSame($defaultEvent, 'defaultEvent', $eventManager);
+        // Test that the default event was set by creating a new event and checking it's cloned
+        $reflection = new \ReflectionProperty($eventManager, 'defaultEvent');
+        $reflection->setAccessible(true);
+        $this->assertSame($defaultEvent, $reflection->getValue($eventManager));
 
         return [
             'eventManager' => $eventManager,
@@ -98,9 +103,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @depends testSetDefaultEvent
-     */
+    #[Depends('testSetDefaultEvent')]
     public function testCreateEventAfterSetDefaultEvent($params)
     {
         $eventManager = $params['eventManager'];
@@ -164,9 +167,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @depends testAttachHandlersToSingleEvent
-     */
+    #[Depends('testAttachHandlersToSingleEvent')]
     public function testDetachHandlersFromSingleEvent($params)
     {
         $eventManager    = $params['eventManager'];
@@ -201,9 +202,7 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @depends testAttachHandlerToMultipleEvents
-     */
+    #[Depends('testAttachHandlerToMultipleEvents')]
     public function testDetachHandlerFromMultipleEvents($params)
     {
         /* @var $eventManager EventManager */
@@ -223,12 +222,16 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         $eventManager = new EventManager();
         $eventName    = 'foo';
 
+        $callCount = 0;
+        $testCase = $this;
         for ($i = 0; $i < 3; $i++) {
-            $listener = $this->getMockBuilder('stdClass')->setMethods(['method'])->getMock();
-            $listener->expects($this->once())->method('method')->with($this->isInstanceOf(EventInterface::class));
-            $eventManager->attach($eventName, [$listener, 'method']);
+            $eventManager->attach($eventName, function($event) use (&$callCount, $testCase) {
+                $callCount++;
+                $testCase->assertInstanceOf(EventInterface::class, $event);
+            });
         }
         $eventManager->trigger($eventName);
+        $this->assertEquals(3, $callCount);
     }
 
     public function testTriggerEvent()
@@ -237,19 +240,23 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
         $eventName    = 'foo';
         $event        = new Event($eventName);
 
+        $callCount = 0;
+        $testCase = $this;
         for ($i = 0; $i < 3; $i++) {
-            $listener = $this->getMockBuilder('stdClass')->setMethods(['method'])->getMock();
-            $listener->expects($this->once())->method('method')->with($this->identicalTo($event));
-            $eventManager->attach($eventName, [$listener, 'method']);
+            $eventManager->attach($eventName, function($receivedEvent) use (&$callCount, $testCase, $event) {
+                $callCount++;
+                $testCase->assertSame($event, $receivedEvent);
+            });
         }
         $eventManager->triggerEvent($event);
+        $this->assertEquals(3, $callCount);
     }
 
     /**
      * Data provider to test handlers with priority.
      * @return array
      */
-    public function triggerWithPriorityProvider()
+    public static function triggerWithPriorityProvider(): array
     {
         $methods = [
             'methodA' => 2,
@@ -264,61 +271,74 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
             return $a <= $b ? 1 : -1;
         });
 
-        $eventManager = new EventManager();
-        $listener     = $this->getMockBuilder('stdClass')->setMethods(array_keys($methods))->getMock();
-        $eventName    = 'foo';
-
         return [
-            [$eventManager, $listener, $eventName, $methods]
+            [new EventManager(), 'foo', $methods]
         ];
     }
 
-    /**
-     * @dataProvider triggerWithPriorityProvider
-     */
-    public function testTriggerWithPriority(EventManager $eventManager, $listener, $eventName, $methods)
+    #[DataProvider('triggerWithPriorityProvider')]
+    public function testTriggerWithPriority(EventManager $eventManager, string $eventName, array $methods)
     {
-        $index = 0;
+        $executionOrder = [];
         foreach ($methods as $method => $priority) {
-            $listener->expects($this->at($index++))->method($method)->with($this->isInstanceOf(EventInterface::class));
-            $eventManager->attach($eventName, [$listener, $method], $priority);
+            $eventManager->attach($eventName, function($event) use ($method, &$executionOrder) {
+                $executionOrder[] = $method;
+            }, $priority);
         }
         $eventManager->trigger($eventName);
+        
+        // Verify methods were called in correct priority order
+        $expectedOrder = array_keys($methods);
+        $this->assertEquals($expectedOrder, $executionOrder);
     }
 
-    /**
-     * @dataProvider triggerWithPriorityProvider
-     */
-    public function testTriggerEventWithPriority(EventManager $eventManager, $listener, $eventName, $methods)
+    #[DataProvider('triggerWithPriorityProvider')]
+    public function testTriggerEventWithPriority(EventManager $eventManager, string $eventName, array $methods)
     {
         $event = new Event($eventName);
-        $index = 0;
+        $executionOrder = [];
+        $testCase = $this;
+        
         foreach ($methods as $method => $priority) {
-            $listener->expects($this->at($index++))->method($method)->with($this->identicalTo($event));
-            $eventManager->attach($eventName, [$listener, $method], $priority);
+            $eventManager->attach($eventName, function($receivedEvent) use ($method, &$executionOrder, $testCase, $event) {
+                $executionOrder[] = $method;
+                $testCase->assertSame($event, $receivedEvent);
+            }, $priority);
         }
         $eventManager->triggerEvent($event);
+        
+        // Verify methods were called in correct priority order  
+        $expectedOrder = array_keys($methods);
+        $this->assertEquals($expectedOrder, $executionOrder);
     }
 
     public function testStopPropagation()
     {
         $eventName = 'foo';
-
-        $instanceOf = $this->isInstanceOf(EventInterface::class);
-        $stopMethod = function (EventInterface $e) {
-            $e->stopPropagation();
-        };
-
-        $listener = $this->getMockBuilder('stdClass')->setMethods(['beforeStop', 'stop', 'afterStop'])->getMock();
-        $listener->expects($this->at(0))->method('beforeStop')->with($instanceOf);
-        $listener->expects($this->at(1))->method('stop')->with($instanceOf)->willReturnCallback($stopMethod);
-        $listener->expects($this->never())->method('afterStop')->with($instanceOf);
+        $executionOrder = [];
+        $testCase = $this;
 
         $eventManager = new EventManager();
-        $eventManager->attach($eventName, [$listener, 'beforeStop']);
-        $eventManager->attach($eventName, [$listener, 'stop']);
-        $eventManager->attach($eventName, [$listener, 'afterStop']);
+        
+        $eventManager->attach($eventName, function(EventInterface $event) use (&$executionOrder, $testCase) {
+            $executionOrder[] = 'beforeStop';
+            $testCase->assertInstanceOf(EventInterface::class, $event);
+        });
+        
+        $eventManager->attach($eventName, function(EventInterface $event) use (&$executionOrder, $testCase) {
+            $executionOrder[] = 'stop';
+            $testCase->assertInstanceOf(EventInterface::class, $event);
+            $event->stopPropagation();
+        });
+        
+        $eventManager->attach($eventName, function(EventInterface $event) use (&$executionOrder) {
+            $executionOrder[] = 'afterStop';
+        });
+        
         $eventManager->trigger($eventName);
+        
+        // Verify only beforeStop and stop were called, not afterStop
+        $this->assertEquals(['beforeStop', 'stop'], $executionOrder);
     }
 
     /**

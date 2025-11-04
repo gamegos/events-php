@@ -8,7 +8,7 @@ use Gamegos\Events\Event;
  * Test class for Gamegos\Events\Event
  * @author Safak Ozpinar <safak@gamegos.com>
  */
-class EventTest extends \PHPUnit_Framework_TestCase
+class EventTest extends \PHPUnit\Framework\TestCase
 {
     public function testConstructorArguments()
     {

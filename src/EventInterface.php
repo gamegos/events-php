@@ -9,36 +9,31 @@ interface EventInterface
 {
     /**
      * Get the event name.
-     * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Set the event name.
-     * @param string $name
      */
-    public function setName($name);
+    public function setName(string $name): void;
 
     /**
      * Get the event target.
-     * @return mixed
      */
-    public function getTarget();
+    public function getTarget(): mixed;
 
     /**
      * Set the event target.
-     * @param mixed $target
      */
-    public function setTarget($target);
+    public function setTarget(mixed $target): void;
 
     /**
      * Stop further listeners to be triggered.
      */
-    public function stopPropagation();
+    public function stopPropagation(): void;
 
     /**
      * Check if the propagation is stopped or not.
-     * @return bool
      */
-    public function isPropagationStopped();
+    public function isPropagationStopped(): bool;
 }

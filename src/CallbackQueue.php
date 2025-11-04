@@ -14,29 +14,24 @@ class CallbackQueue implements IteratorAggregate, Countable
 {
     /**
      * Callback storage
-     * @var array
      */
-    protected $storage = [];
+    protected array $storage = [];
 
     /**
      * Add a callback into the queue.
-     * @param callable $callback
-     * @param int $priority
      */
-    public function add(callable $callback, $priority = 0)
+    public function add(callable $callback, int $priority = 0): void
     {
-        $this->storage[(int) $priority][] = $callback;
+        $this->storage[$priority][] = $callback;
     }
 
     /**
      * Check if the queue contains a specified callback.
-     * @param  callable $callback
-     * @return boolean
      */
-    public function contains(callable $callback)
+    public function contains(callable $callback): bool
     {
         foreach (array_keys($this->storage) as $priority) {
-            if (false !== ($index = array_search($callback, $this->storage[$priority], true))) {
+            if (false !== array_search($callback, $this->storage[$priority], true)) {
                 return true;
             }
         }
@@ -46,9 +41,8 @@ class CallbackQueue implements IteratorAggregate, Countable
     /**
      * Remove a callback from the queue.
      * If $callback is found more than once, all the refences will be removed.
-     * @param callable $callback
      */
-    public function remove(callable $callback)
+    public function remove(callable $callback): void
     {
         foreach (array_keys($this->storage) as $priority) {
             $indexes = array_keys($this->storage[$priority], $callback, true);
@@ -63,9 +57,8 @@ class CallbackQueue implements IteratorAggregate, Countable
 
     /**
      * Export the queue as a sorted array.
-     * @return callable[]
      */
-    public function export()
+    public function export(): array
     {
         $priorities = array_keys($this->storage);
         rsort($priorities, SORT_NUMERIC);
@@ -79,9 +72,8 @@ class CallbackQueue implements IteratorAggregate, Countable
 
     /**
      * {@inheritdoc}
-     * @return \ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->export());
     }
@@ -89,7 +81,7 @@ class CallbackQueue implements IteratorAggregate, Countable
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         $count = 0;
         foreach ($this->storage as $callbacks) {
