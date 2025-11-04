@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.0-beta1] - 2025-11-04
+* 🚀 Added support for PHP versions 8.3 and 8.4.
+    * 🛑 Dropped support for older versions.
+
 ## [1.0.0] - 2019-03-14
 * Added support for PHP versions 7.1, 7.2 and 7.3.
 * Updated test environment for testing with docker.
